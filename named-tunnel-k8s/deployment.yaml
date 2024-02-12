@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: cloudflared
-        image: cloudflare/cloudflared:2022.3.0
+        image: cloudflare/cloudflared:2024.2.0
         resources:
           limits:
             cpu: 1
@@ -70,3 +70,4 @@ data:
       originRequest:
         noTLSVerify: true  # ArgoCD には有効な TLS 証明書がないため、これが必要になります
     - service: http_status:404
+  
