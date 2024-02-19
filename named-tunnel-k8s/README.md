@@ -4,6 +4,13 @@
 | namespace         | cloudflared |
 | 作成される pod 数 | 2           |
 
+## CloudFlaredをインストールする
+
+以下を参考に自分にあったものを探してください
+
+- https://pkg.cloudflare.com/index.html
+- https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
+
 ## トンネルを作成します。
 
 ```sh
