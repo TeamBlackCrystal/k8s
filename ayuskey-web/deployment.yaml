@@ -1,0 +1,105 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: ayuskey
+  labels:
+    name: ayuskey
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-ayuskey-config
+  namespace: ayuskey
+spec:
+  storageClassName: nfs-csi
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Mi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-ayuskey-files
+  namespace: ayuskey
+spec:
+  storageClassName: nfs-csi
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi # S3を使っている想定なので、不要なレベル
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ayuskey-web-deployment
+  namespace: ayuskey
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: "50%"
+      maxSurge: "50%"
+  # マイグレーションがある場合は入れ替えてプッシュ
+  #strategy:
+  #rollingUpdate:
+  #  maxSurge: 0
+  #  maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: ayuskey-web
+  template:
+    metadata:
+      labels:
+        app: ayuskey-web
+    spec:
+      containers:
+      - name: ayuskey-web
+        image: ghcr.io/teamblackcrystal/ayuskey10:2024.2.0-kr.1-5971d15
+        volumeMounts:
+        - mountPath: /misskey/files
+          name: ayuskey-files
+        - mountPath: /misskey/.config
+          name: ayuskey-config
+        ports:
+        - containerPort: 3100
+        # 偉大なヘルスチェック
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3100
+            scheme: HTTP
+        resources:
+          limits:
+            cpu: "1"
+        command: ["pnpm", "run", "migrateandstart"]
+      volumes:
+      - name: ayuskey-files
+        persistentVolumeClaim:
+          claimName: pvc-ayuskey-files
+      - name: ayuskey-config
+        persistentVolumeClaim:
+          claimName: pvc-ayuskey-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ayuskey-web
+  namespace: ayuskey
+spec:
+  type: NodePort
+  # type: ClusterIP
+  selector:
+    app: ayuskey-web
+  ports:
+  - name: http
+    protocol: TCP
+    port: 3100
+    targetPort: 3100
+    nodePort: 30100
+  externalTrafficPolicy: Local
+

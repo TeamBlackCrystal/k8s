@@ -63,17 +63,15 @@ data:
     metrics: 0.0.0.0:2000
     no-autoupdate: true
     ingress:
-    - hostname: _k8s.akarinext.org
+    - hostname: _k8s.rikkalab.net
       service: https://kubernetes-dashboard.kubernetes-dashboard
       originRequest:
         noTLSVerify: true  # Kubernetes ダッシュボードには有効な TLS 証明書がないため、これが必要になります
-    - hostname: _argocd.akarinext.org
+    - hostname: _argocd.rikkalab.net
       service: https://argocd-server.argocd
       originRequest:
         noTLSVerify: true  # ArgoCD には有効な TLS 証明書がないため、これが必要になります
-    - hostname: _hubble-ui.akarinext.org
-      service: http://hubble-ui.kube-system
-    - hostname: coder.akarinext.org
-      service: http://coder.coder
+    - hostname: kr.akirin.xyz
+      service: http://ayuskey-web.ayuskey:3100
     - service: http_status:404
   
