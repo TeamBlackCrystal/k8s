@@ -2,5 +2,19 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "enabledManagers": [
+    "argocd",
+    "regex"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "ghcr.io/teamblackcrystal/ayuskey10"
+      ],
+      "matchDatasources": [
+        "docker"
+      ]
+    }
   ]
 }
