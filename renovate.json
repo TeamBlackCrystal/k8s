@@ -5,7 +5,7 @@
   ],
   "packageRules": [
     {
-      "packagePatterns": ["*.yaml", "*.yml"],
+      "packagePatterns": ["deployment.yaml", "deployment.yml"],
       "updateTypes": ["default"]
     }
   ],
