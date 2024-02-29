@@ -3,13 +3,13 @@
   "extends": [
     "config:base"
   ],
-  "packageRules": [],
-  "regexManagers":[
+  "packageRules": [
     {
-      "fileMatch": ["deployment\\.ya?ml$"],
-      "matchStrings": ["image: (?<depName>.*\/.*?):(?<currentValue>.*?)"],
-      "datasourceTemplate": "docker"
-    },
+      "packagePatterns": ["*.yaml", "*.yml"],
+      "updateTypes": ["default"]
+    }
+  ],
+  "regexManagers":[
     {
       "fileMatch": ["kustomization\\.ya?ml$"],
       "matchStrings": ["https:\/\/github.com\/(?<depName>.*\/.*?)\/releases\/download\/(?<currentValue>.*?)\/"],
