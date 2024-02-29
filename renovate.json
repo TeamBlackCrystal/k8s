@@ -3,17 +3,13 @@
   "extends": [
     "config:base"
   ],
-  "packageRules": [
-    {
-      "matchPackageNames": [
-        "ghcr.io/teamblackcrystal/ayuskey10"
-      ],
-      "matchDatasources": [
-        "docker"
-      ]
-    }
-  ],
+  "packageRules": [],
   "regexManagers":[
+    {
+      "fileMatch": ["deployment\\.ya?ml$"],
+      "matchStrings": ["image: (?<depName>.*\/.*?):(?<currentValue>.*?)"],
+      "datasourceTemplate": "docker"
+    },
     {
       "fileMatch": ["kustomization\\.ya?ml$"],
       "matchStrings": ["https:\/\/github.com\/(?<depName>.*\/.*?)\/releases\/download\/(?<currentValue>.*?)\/"],
