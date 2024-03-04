@@ -59,7 +59,7 @@ spec:
     spec:
       containers:
       - name: ayuskey-web
-        image: ghcr.io/teamblackcrystal/ayuskey10:2024.2.0-kr.1-5971d15
+        image: ghcr.io/teamblackcrystal/ayuskey10:2024.3.1-kr.1-5e1529f
         volumeMounts:
         - mountPath: /misskey/files
           name: ayuskey-files
