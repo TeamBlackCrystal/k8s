@@ -1,0 +1,70 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared-akari
+  namespace: cloudflared
+spec:
+  selector:
+    matchLabels:
+      app: cloudflared-akari
+  replicas: 2 # You could also consider elastic scaling for this deployment
+  template:
+    metadata:
+      labels:
+        app: cloudflared-akari
+    spec:
+      containers:
+      - name: cloudflared-akari
+        image: cloudflare/cloudflared:2024.11.0
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+        args:
+        - tunnel
+        - --config
+        - /etc/cloudflared/config/config.yaml
+        - run
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: 2000
+          failureThreshold: 1
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+        - name: config
+          mountPath: /etc/cloudflared/config
+          readOnly: true
+        - name: creds
+          mountPath: /etc/cloudflared/creds
+          readOnly: true
+      volumes:
+      - name: creds
+        secret:
+          secretName: tunnel-credentials-akari
+      - name: config
+        configMap:
+          name: cloudflared-akari
+          items:
+          - key: config.yaml
+            path: config.yaml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflared-akari
+  namespace: cloudflared
+data:
+  config.yaml: |
+    tunnel: k8s
+    credentials-file: /etc/cloudflared/creds/credentials.json
+    metrics: 0.0.0.0:2000
+    no-autoupdate: true
+    ingress:
+    - hostname: track.akarinext.org
+      service: http://youtrack-entrypoint.youtrack:8080
+      originRequest:
+        noTLSVerify: true
+    - service: http_status:404
