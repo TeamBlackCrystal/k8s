@@ -65,6 +65,4 @@ data:
     ingress:
     - hostname: track.akarinext.org
       service: http://youtrack-entrypoint.youtrack:8080
-      originRequest:
-        noTLSVerify: true
     - service: http_status:404
