@@ -64,5 +64,5 @@ data:
     no-autoupdate: true
     ingress:
     - hostname: track.akarinext.org
-      service: http://youtrack-entrypoint.youtrack:8080
+      service: http://youtrack-entrypoint.youtrack
     - service: http_status:404
