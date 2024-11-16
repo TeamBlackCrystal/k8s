@@ -77,4 +77,6 @@ data:
       service: http://ayuskey-web.ayuskey:3100
     - hostname: track.akarinext.org
       service: http://youtrack.youtrack:8080
+      originRequest:
+        noTLSVerify: true
     - service: http_status:404
