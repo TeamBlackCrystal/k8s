@@ -75,5 +75,6 @@ data:
       service: http://ac-web.ayuskey-ac:3000
     - hostname: kr.akirin.xyz
       service: http://ayuskey-web.ayuskey:3100
+    - hostname: track.akarinext.org
+      service: http://youtrack.youtrack:8080
     - service: http_status:404
-  
