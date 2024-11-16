@@ -1,0 +1,103 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: youtrack
+  labels:
+    name: youtrack
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: youtrack-data-pv-claim
+    namespace: youtrack
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+        storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: youtrack-conf-pv-claim
+    namespace: youtrack
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+        storage: 1Gi
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: youtrack-deployment
+  namespace: youtrack
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: youtrack
+      bb: web
+  template:
+    metadata:
+      labels:
+        app: youtrack
+        bb: web
+    spec:
+      securityContext:
+        fsGroup: 1000  # ✅ データと設定ディレクトリの権限を調整
+      initContainers:
+        - name: permission-fix
+          image: busybox
+          command: ["sh", "-c", "chown -R 13001:13001 /opt/youtrack"]
+          volumeMounts:
+            - name: opt-youtrack-conf
+              mountPath: /opt/youtrack/conf
+      volumes:
+        - name: opt-youtrack-data
+          persistentVolumeClaim:
+            claimName: youtrack-data-pv-claim
+        - name: opt-youtrack-conf
+          persistentVolumeClaim:
+            claimName: youtrack-conf-pv-claim
+        # - name: opt-youtrack-logs
+        #   persistentVolumeClaim:
+        #     claimName: youtrack-logs-pv-claim
+        # - name: opt-youtrack-backups
+        #   persistentVolumeClaim:
+        #     claimName: youtrack-backups-pv-claim
+      containers:
+      - name: youtrack
+        image: jetbrains/youtrack:2024.3.48978
+        volumeMounts:
+        - name: opt-youtrack-data
+          mountPath: /opt/youtrack/data
+        - name: opt-youtrack-conf
+          mountPath: /opt/youtrack/conf
+        # - name: opt-youtrack-logs
+        #   mountPath: /opt/youtrack/logs
+        # - name: opt-youtrack-backups
+        #   mountPath: /opt/youtrack/backups
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: youtrack-entrypoint
+  namespace: youtrack
+spec:
+  type: LoadBalancer
+  selector:
+    app: youtrack
+    bb: web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
