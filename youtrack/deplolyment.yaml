@@ -109,7 +109,7 @@ spec:
             claimName: youtrack-backups-pvc
       containers:
       - name: youtrack
-        image: jetbrains/youtrack:2024.3.48978
+        image: jetbrains/youtrack:2024.3.48383
         volumeMounts:
         - name: opt-youtrack-data
           mountPath: /opt/youtrack/data
