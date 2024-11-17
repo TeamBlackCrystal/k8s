@@ -64,7 +64,7 @@ data:
     no-autoupdate: true
     ingress:
     - hostname: hub.akarinext.org
-      service: http://hub-service.jetbrain-hub
+      service: http://jetbrain-hub-svc.jetbrain-hub
     - hostname: track.akarinext.org
-      service: http://youtrack-entrypoint.youtrack
+      service: http://jetbrain-youtrack-svc.jetbrain-youtrack
     - service: http_status:404

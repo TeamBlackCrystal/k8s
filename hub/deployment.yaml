@@ -122,7 +122,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: hub-service
+  name: jetbrain-hub-svc
   namespace: jetbrain-hub
 spec:
   type: LoadBalancer
