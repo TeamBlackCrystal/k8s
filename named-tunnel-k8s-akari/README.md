@@ -36,7 +36,7 @@ kubectl create secret generic tunnel-credentials --from-file=credentials.json=/U
 DNS の次に来る k8s は作成したトンネル名です。今回の構成では `k8s` となります。次に 先ほど編集した `ingress.hostname` に指定したドメインを入力し DNS を登録します。
 
 ```
-cloudflared tunnel route dns k8s _k8s.akarinext.org
+cloudflared tunnel route dns k8s-aki _k8s.akarinext.org
 ```
 
 ## apply する

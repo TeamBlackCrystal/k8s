@@ -63,6 +63,8 @@ data:
     metrics: 0.0.0.0:2000
     no-autoupdate: true
     ingress:
+    - hostname: hub.akarinext.org
+      service: http://hub-service.jetbrain-hub
     - hostname: track.akarinext.org
       service: http://youtrack-entrypoint.youtrack
     - service: http_status:404
