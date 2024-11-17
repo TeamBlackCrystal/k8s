@@ -2,7 +2,7 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: youtrack
+  name: jetbrain-youtrack
   labels:
     name: youtrack
 ---
