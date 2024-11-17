@@ -9,7 +9,7 @@ metadata:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-    name: youtrack-data-pv-claim
+    name: youtrack-data-pvc
     namespace: youtrack
 spec:
   accessModes:
@@ -22,7 +22,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-    name: youtrack-conf-pv-claim
+    name: youtrack-conf-pvc
     namespace: youtrack
 spec:
   accessModes:
@@ -31,6 +31,34 @@ spec:
   resources:
     requests:
         storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: youtrack-logs-pvc
+  namespace: youtrack
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: youtrack-backups-pvc
+  namespace: youtrack
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi
+  resources:
+    requests:
+      storage: 10Gi
+
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -58,21 +86,27 @@ spec:
           image: busybox
           command: ["sh", "-c", "chown -R 13001:13001 /opt/youtrack"]
           volumeMounts:
+            - name: opt-youtrack-data
+              mountPath: /opt/youtrack/data
             - name: opt-youtrack-conf
               mountPath: /opt/youtrack/conf
+            - name: opt-youtrack-logs
+              mountPath: /opt/youtrack/logs
+            - name: opt-youtrack-backups
+              mountPath: /opt/youtrack/backups
       volumes:
         - name: opt-youtrack-data
           persistentVolumeClaim:
-            claimName: youtrack-data-pv-claim
+            claimName: youtrack-data-pvc
         - name: opt-youtrack-conf
           persistentVolumeClaim:
-            claimName: youtrack-conf-pv-claim
-        # - name: opt-youtrack-logs
-        #   persistentVolumeClaim:
-        #     claimName: youtrack-logs-pv-claim
-        # - name: opt-youtrack-backups
-        #   persistentVolumeClaim:
-        #     claimName: youtrack-backups-pv-claim
+            claimName: youtrack-conf-pvc
+        - name: opt-youtrack-logs
+          persistentVolumeClaim:
+            claimName: youtrack-logs-pvc
+        - name: opt-youtrack-backups
+          persistentVolumeClaim:
+            claimName: youtrack-backups-pvc
       containers:
       - name: youtrack
         image: jetbrains/youtrack:2024.3.48978
@@ -81,10 +115,10 @@ spec:
           mountPath: /opt/youtrack/data
         - name: opt-youtrack-conf
           mountPath: /opt/youtrack/conf
-        # - name: opt-youtrack-logs
-        #   mountPath: /opt/youtrack/logs
-        # - name: opt-youtrack-backups
-        #   mountPath: /opt/youtrack/backups
+        - name: opt-youtrack-logs
+          mountPath: /opt/youtrack/logs
+        - name: opt-youtrack-backups
+          mountPath: /opt/youtrack/backups
 
 ---
 apiVersion: v1
