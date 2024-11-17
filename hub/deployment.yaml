@@ -1,0 +1,134 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jetbrain-hub
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hub-data-pvc
+  namespace: jetbrain-hub
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hub-conf-pvc
+  namespace: jetbrain-hub
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hub-logs-pvc
+  namespace: jetbrain-hub
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hub-backups-pvc
+  namespace: jetbrain-hub
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hub-server
+  namespace: jetbrain-hub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hub-server
+  template:
+    metadata:
+      labels:
+        app: hub-server
+    spec:
+      securityContext:
+        fsGroup: 1000  # ✅ データと設定ディレクトリの権限を調整
+      initContainers:
+        - name: permission-fix
+          image: busybox
+          command: ["sh", "-c", "chown -R 13001:13001 /opt/hub"]
+          volumeMounts:
+            - name: data-volume
+              mountPath: /opt/hub/data
+            - name: conf-volume
+              mountPath: /opt/hub/conf
+            - name: logs-volume
+              mountPath: /opt/hub/logs
+            - name: backups-volume
+              mountPath: /opt/hub/backups
+      containers:
+        - name: hub-server
+          image: jetbrains/hub:2024.3.48383
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: data-volume
+              mountPath: /opt/hub/data
+            - name: conf-volume
+              mountPath: /opt/hub/conf
+            - name: logs-volume
+              mountPath: /opt/hub/logs
+            - name: backups-volume
+              mountPath: /opt/hub/backups
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: hub-data-pvc
+        - name: conf-volume
+          persistentVolumeClaim:
+            claimName: hub-conf-pvc
+        - name: logs-volume
+          persistentVolumeClaim:
+            claimName: hub-logs-pvc
+        - name: backups-volume
+          persistentVolumeClaim:
+            claimName: hub-backups-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hub-service
+  namespace: jetbrain-hub
+spec:
+  type: LoadBalancer
+  selector:
+    app: hub-server
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
